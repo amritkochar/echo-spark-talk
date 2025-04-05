@@ -12,7 +12,7 @@ const Index = () => {
     "idle" | "listening" | "processing" | "speaking"
   >("idle");
   const [isMuted, setIsMuted] = useState(false);
-  const [showControls, setShowControls] = useState(false);
+  const [isConversationActive, setIsConversationActive] = useState(false);
   const { toast } = useToast();
 
   const { 
@@ -41,11 +41,11 @@ const Index = () => {
   useEffect(() => {
     if (isListening) {
       setConversationStatus("listening");
-      setShowControls(true);
-    } else {
+      setIsConversationActive(true);
+    } else if (!isConversationActive) {
       setConversationStatus("idle");
     }
-  }, [isListening]);
+  }, [isListening, isConversationActive]);
 
   const handleMuteToggle = () => {
     setIsMuted(!isMuted);
@@ -57,11 +57,17 @@ const Index = () => {
 
   const handleDisconnect = () => {
     stopListening();
-    setShowControls(false);
+    setIsConversationActive(false);
+    setConversationStatus("idle");
     toast({
       title: "Disconnected",
       description: "Your conversation has ended",
     });
+  };
+
+  const handleStartConversation = () => {
+    toggleListening();
+    setIsConversationActive(true);
   };
 
   return (
@@ -69,20 +75,25 @@ const Index = () => {
       <div className="glass-card p-8 rounded-3xl w-full max-w-md flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold mb-4 text-center">CA Uncle</h1>
         <p className="text-muted-foreground text-center mb-6">
-          Tap the mic to start a conversation
+          {isConversationActive 
+            ? "Your conversation is active" 
+            : "Tap the mic to start a conversation"}
         </p>
 
         <WaveAnimation isListening={isListening} audioLevel={audioLevel} />
         
         <div className="mt-8 flex flex-col items-center">
-          <MicButton isListening={isListening} onClick={toggleListening} />
+          {!isConversationActive && (
+            <MicButton isListening={isListening} onClick={handleStartConversation} />
+          )}
+          
           <ConversationStatus status={conversationStatus} />
           
           <ControlButtons 
             isMuted={isMuted}
             onMuteToggle={handleMuteToggle}
             onDisconnect={handleDisconnect}
-            isVisible={showControls}
+            isVisible={isConversationActive}
           />
         </div>
       </div>

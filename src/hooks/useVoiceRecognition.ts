@@ -1,6 +1,35 @@
 
 import { useState, useEffect, useCallback } from "react";
 
+// Add TypeScript interfaces for SpeechRecognition
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onend: () => void;
+  onerror: (event: Event) => void;
+}
+
+// Define the global SpeechRecognition constructor
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+// Extend Window interface to include SpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
 interface UseVoiceRecognitionOptions {
   onResult?: (transcript: string) => void;
   onEnd?: () => void;
@@ -12,6 +41,7 @@ export const useVoiceRecognition = (options: UseVoiceRecognitionOptions = {}) =>
   const [transcript, setTranscript] = useState("");
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [isSupported, setIsSupported] = useState(false);
 
   // Mock audio level for demo until we can get actual audio levels
   useEffect(() => {
@@ -28,10 +58,11 @@ export const useVoiceRecognition = (options: UseVoiceRecognitionOptions = {}) =>
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
       
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
+      if (SpeechRecognitionConstructor) {
+        setIsSupported(true);
+        const recognition = new SpeechRecognitionConstructor();
         recognition.continuous = options.continuous ?? false;
         recognition.interimResults = true;
         
@@ -55,6 +86,7 @@ export const useVoiceRecognition = (options: UseVoiceRecognitionOptions = {}) =>
         
         setRecognition(recognition);
       } else {
+        setIsSupported(false);
         console.error("Speech recognition not supported in this browser");
       }
     }
@@ -99,7 +131,7 @@ export const useVoiceRecognition = (options: UseVoiceRecognitionOptions = {}) =>
     stopListening,
     toggleListening,
     audioLevel,
-    isSupported: !!recognition,
+    isSupported,
   };
 };
 
