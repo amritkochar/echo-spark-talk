@@ -67,7 +67,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="glass-card p-8 rounded-3xl w-full max-w-md flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold mb-4 text-center">Echo</h1>
+        <h1 className="text-4xl font-bold mb-4 text-center">CA Uncle</h1>
         <p className="text-muted-foreground text-center mb-6">
           Tap the mic to start a conversation
         </p>
