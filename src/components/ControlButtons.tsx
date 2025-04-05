@@ -21,14 +21,14 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({
     <div className="flex gap-4 animate-fade-in mt-8">
       <button
         onClick={onMuteToggle}
-        className="control-button"
+        className={`control-button ${isMuted ? "bg-primary" : "bg-muted"}`}
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
         {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
       </button>
       <button
         onClick={onDisconnect}
-        className="control-button bg-destructive"
+        className="control-button bg-destructive hover:bg-destructive/90"
         aria-label="Disconnect"
       >
         <PhoneOff className="w-6 h-6" />
